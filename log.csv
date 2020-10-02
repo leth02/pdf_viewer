@@ -1,0 +1,19 @@
+Client_Addr,Client_Agent,Time_Recorded,Filename,Page_Viewed,Time_Spent_On_Page(Seconds)
+127.0.0.1,Mozilla/5.0,"8/25/2020, 3:58:46 PM",LearningSpark2.0.pdf,0,0
+127.0.0.1,Mozilla/5.0,"8/25/2020, 3:58:52 PM",LearningSpark2.0.pdf,1,5
+127.0.0.1,Mozilla/5.0,"8/25/2020, 3:58:53 PM",LearningSpark2.0.pdf,2,1
+127.0.0.1,Mozilla/5.0,"8/25/2020, 3:58:56 PM",LearningSpark2.0.pdf,3,3
+127.0.0.1,Mozilla/5.0,"8/25/2020, 3:58:58 PM",LearningSpark2.0.pdf,4,1
+127.0.0.1,Mozilla/5.0,"8/25/2020, 3:58:58 PM",LearningSpark2.0.pdf,5,0
+127.0.0.1,Mozilla/5.0,"8/25/2020, 3:58:59 PM",LearningSpark2.0.pdf,6,0
+127.0.0.1,Mozilla/5.0,"8/25/2020, 3:59:05 PM",LearningSpark2.0.pdf,7,6
+127.0.0.1,Mozilla/5.0,"8/25/2020, 3:59:06 PM",LearningSpark2.0.pdf,8,0
+127.0.0.1,Mozilla/5.0,"8/25/2020, 3:59:06 PM",LearningSpark2.0.pdf,9,0
+127.0.0.1,Mozilla/5.0,"8/25/2020, 3:59:06 PM",LearningSpark2.0.pdf,10,0
+127.0.0.1,Mozilla/5.0,"8/25/2020, 3:59:07 PM",LearningSpark2.0.pdf,11,0
+127.0.0.1,Mozilla/5.0,"8/25/2020, 4:02:20 PM",LearningSpark2.0.pdf,12,193
+127.0.0.1,Mozilla/5.0,"8/25/2020, 4:02:21 PM",LearningSpark2.0.pdf,13,0
+127.0.0.1,Mozilla/5.0,"8/25/2020, 4:02:22 PM",LearningSpark2.0.pdf,12,0
+127.0.0.1,Mozilla/5.0,"8/25/2020, 11:03:34 PM",LearningSpark2.0.pdf,0,0
+127.0.0.1,Mozilla/5.0,"8/25/2020, 11:03:43 PM",LearningSpark2.0.pdf,1,8
+127.0.0.1,Mozilla/5.0,"8/25/2020, 11:03:43 PM",LearningSpark2.0.pdf,2,0

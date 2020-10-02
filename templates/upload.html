@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+  <div class="card">
+    <div class="class-body" style="padding: 10px;">
+
+      <form action="/" method="POST" id='card-form' enctype="multipart/form-data">
+        <div style="margin-bottom: 20px;">
+          <label for="file">Choose PDF file(s) to upload: </label>
+          <input type="file" id="file" name="file" accept="application/pdf">
+        </div>
+
+        <div>
+          <input type="submit" class="btn btn-primary float-left" value="Upload" name="upload">
+        </div>
+      </form>
+      
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}

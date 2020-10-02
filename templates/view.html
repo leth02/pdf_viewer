@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+  <div class = "card" >
+    <div class="card-body">
+      <form action="/view" method="POST">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">File Name</th>
+                <th scope="col">Size</th>
+                <th scope="col">Select</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <!-- Get file_list from server -->
+            {% for file in file_list %}
+              <tr>
+                <td>{{ file[0] }}</td>
+                <td>{{ file[1] }}</td>
+                <td>{{ file[2] }}</td>
+                <!-- Pass the filename to server when checked -->
+                <td>
+                  <div class="form-group">
+                    <label for="myCheckbox"></label>
+                    <input type="checkbox" id="myCheckbox"  name="checkbox" value="{{ file[1] }}" >
+                  </div>
+                  
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <div>
+          <input type="submit" class="btn btn-danger float-left" value="View Selected File" name="view_the_file">
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+

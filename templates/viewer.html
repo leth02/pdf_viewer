@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block head %}
+  {{ super() }}
+  <style type="text/css">
+    /* Additional Google Font */
+    #myFilename {
+      font-family: 'Roboto Slab', serif;
+      font-size: 30px;
+    }
+    
+  </style>
+{% endblock %}
+
+{% block content %}
+<div class="toolbar">
+  <div class="btn-toolbar d-flex justify-content-around" role="toolbar" aria-label="Toolbar with button groups">
+    <div class="btn-group mr-2" role="group" aria-label="First group"> 
+        <p id="myFilename">{{filename}}</p>
+    </div>
+
+    <div class="btn-group btn-group-sm mr-2" role="group" aria-label="Second group">
+      <button type="button" class="btn btn-light mr-sm-2" id="prev">
+        <span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M0 12l9-8v6h15v4h-15v6z"/></svg>
+        </span>
+      </button>
+
+      <span class="btn btn-secondary mr-sm-2">Page: <span id="page_num"></span> / <span id="page_count"></span> </span>
+
+      <button type="button" class="btn btn-light mr-sm-2" id="next">
+        <span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M24 12l-9-8v6h-15v4h15v6z"/></svg>
+        </span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <h1 id="client_addr" style="display:none">{{ remote_addr }}</h1>
+  <h1 id="client_agent" style="display:none">{{ user_agent }}</h1>
+  <br>
+
+  <div class="container d-flex justify-content-center">
+    <canvas id="the-canvas" style="border: 1px solid black; direction: ltr;"></canvas>
+  </div>
+</div>
+
+<!-- Javascript for rendering PDF file -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.5.207/pdf.min.js"></script>
+
+<script id="script">
+  (function() {
+    // Variables for keeping track of how long users spend on a page
+    let isInitialRendering = true;
+    let previousTime;
+
+    let filename = document.getElementById("myFilename").textContent;
+    
+    var url = `http://localhost:5000/storage/${filename}`;
+
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.5.207/pdf.worker.min.js';
+
+    // Configurations for rendering
+    var pdfDoc = null,
+    pageNum = 1,
+    pageRendering = false,
+    pageNumPending = null,
+    scale = 1.5,
+    canvas = document.getElementById('the-canvas'),
+    ctx = canvas.getContext('2d');
+
+    /**
+     * Get page info from document, resize canvas accordingly, and render page.
+     * @param num Page number.
+     */
+    function renderPage(num) {
+
+      if (isInitialRendering && num == 1) {
+        // Set the global timer for calculating time spent on a page
+        previousTime = new Date();
+
+        // Send the record to server
+        let currentTime = previousTime.toLocaleString();
+        let timeSpentOnPage = 0;
+        sendUserAction(currentTime, timeSpentOnPage, 0);
+        
+        // toggle the condition -> the file is already open on page 1
+        isInitialRendering = false;
+      }
+
+      else {
+        let currentTime = new Date();
+        let timeSpentOnPage = getTimeSpentOnPage(previousTime, currentTime);
+        sendUserAction(currentTime.toLocaleString(), timeSpentOnPage, num - 1);
+
+        previousTime = currentTime;
+      }
+
+      // Render the view of the current page
+      pageRendering = true;
+        // Using promise to fetch the page
+        pdfDoc.getPage(num).then(function(page) {
+
+          var viewport = page.getViewport({scale: scale});
+          canvas.height = viewport.height;
+          canvas.width = viewport.width;
+
+          // Render PDF page into canvas context
+          var renderContext = {
+            canvasContext: ctx,
+            viewport: viewport,
+            //printResolution: 300
+          };
+          var renderTask = page.render(renderContext);
+
+          // Wait for rendering to finish
+          renderTask.promise.then(function() {
+            pageRendering = false;
+            if (pageNumPending !== null) {
+              // New page rendering is pending
+              renderPage(pageNumPending);
+              pageNumPending = null;
+            }
+          });
+        });
+
+        // Update page counters
+        document.getElementById('page_num').textContent = num;
+    }
+
+    /**
+     * Calculate time spent on a page in seconds
+     * **/
+    function getTimeSpentOnPage(start, end) {
+      return parseInt((end - start) / 1000);
+    }
+
+    /**
+     * Push a record of user's action to server 
+    **/
+    function sendUserAction(timeRecorded, timeSpentOnPage, pageNum) {
+      let client_addr = document.getElementById("client_addr").textContent;
+      let client_agent = document.getElementById("client_agent").textContent;
+      let logData = {
+        Client_Addr: client_addr,
+        Client_Agent: client_agent,
+        Time_Recorded: timeRecorded,
+        Filename: filename,
+        Page_Viewed: pageNum,
+        Time_Spent_On_Page: timeSpentOnPage
+      }
+
+      fetch('http://localhost:5000/log', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(logData)
+      })
+      .then(response => response.text())
+      .then(data => {console.log('Successfully logged ;', data); })
+      .catch(error => {console.error('Error logging data: ', error); })
+
+    }
+
+
+    /**
+     * If another page rendering in progress, waits until the rendering is
+     * finised. Otherwise, executes rendering immediately.
+     */
+    function queueRenderPage(num) {
+      if (pageRendering) {
+        pageNumPending = num;
+      } else {
+        renderPage(num);
+      }
+    }
+
+    /**
+     * Displays previous page.
+     */
+    function onPrevPage() {
+      if (pageNum <= 1) {
+        return;
+      }
+      pageNum--;
+      queueRenderPage(pageNum);
+    }
+    document.getElementById('prev').addEventListener('click', onPrevPage);
+
+    /**
+     * Displays next page.
+     */
+    function onNextPage() {
+      if (pageNum >= pdfDoc.numPages) {
+        return;
+      }
+      pageNum++;
+      queueRenderPage(pageNum);
+    }
+    document.getElementById('next').addEventListener('click', onNextPage);
+
+    /**
+     * Asynchronously downloads PDF.
+     */
+    pdfjsLib.getDocument(url).promise.then(function(pdfDoc_) {
+      pdfDoc = pdfDoc_;
+      document.getElementById('page_count').textContent = pdfDoc.numPages;
+
+      // Initial/first page rendering
+      renderPage(pageNum);
+    });
+
+  })()
+
+</script>
+
+{% endblock %}
